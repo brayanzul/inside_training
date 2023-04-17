@@ -1,9 +1,17 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hive/hive.dart';
+import 'package:inside_training/app/pages/login/login_view.dart';
+import 'package:inside_training/app/pages/rounder_app.dart';
+import 'package:inside_training/app_theme.dart';
+import 'package:inside_training/generated/l10n.dart';
+import 'package:inside_training/leguage_changes_provider.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/src/provider.dart';
 import 'package:logging/logging.dart';
 
@@ -28,6 +36,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // todo: crear RouterApp
+  final RouterApp _router = RouterApp();
 
   @override
   void initState() {
@@ -40,15 +49,26 @@ class _MyAppState extends State<MyApp> {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     return MultiProvider(
-        providers: [],
+        providers: [
+          Provider<LenguageChangeProvider>(create: (_) => LenguageChangeProvider()),
+        ],
         child: Builder(
           builder: (context) {
           return MaterialApp(
             title: 'Flutter Demo',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            home: Container(),
+            theme: AppTheme().theme(),
+            localizationsDelegates: const [
+              S.delegate,
+              FormBuilderLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            locale: Provider.of<LenguageChangeProvider>(context, listen:true).currentLocale,
+            supportedLocales: S.delegate.supportedLocales,
+            home: const LoginPage(),
+            onGenerateRoute: _router.getRoute,
+            navigatorObservers: [_router.routeObserver],
           );
         }));
   }
